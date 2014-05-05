@@ -4,13 +4,16 @@ namespace Activity\Admin\Controllers;
 class Activities extends \Admin\Controllers\BaseAuth  
 {	
 	
-     public function display()
+     public function index()
     {
         \Base::instance()->set('pagetitle', 'Activities');
         \Base::instance()->set('subtitle', '');
-                
-        $view = new \Dsc\Template;
-        echo $view->render('activities/home.php');
+         $model = new \Activity\Models\Activity;
+        \Base::instance()->set('state', $model->populateState()->getState() );
+        \Base::instance()->set('paginated', $model->paginate() );
+
+        echo \Dsc\System::instance()->get('theme')->renderTheme('Activity/Admin/Views::activities/list.php');     
+    	
     }
 	
 
