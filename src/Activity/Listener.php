@@ -5,18 +5,28 @@ class Listener extends \Prefab
 {
     public function onSystemRebuildMenu( $event )
     {
-        if ($mapper = $event->getArgument('mapper')) 
-        {
-            $mapper->reset();
-            $mapper->title = 'Activity';
-            $mapper->route = '';
-            $mapper->icon = 'fa fa-tasks';
-            $mapper->children = array(
-                    json_decode(json_encode(array( 'title'=>'Activities', 'route'=>'/admin/activities', 'icon'=>'fa fa-list' )))
-                   ,json_decode(json_encode(array( 'title'=>'Settings', 'route'=>'/admin/activities/settings', 'icon'=>'fa fa-cogs' )))
-      
+        if ($model = $event->getArgument('model'))
+        {  
+            $root = $event->getArgument( 'root' );
+            $modules = clone $model;
+        
+            $modules->insert(
+                    array(
+                            'type'  => 'admin.nav',
+                            'priority' => 200,
+                            'title' => 'Activity',
+                            'icon'  => 'fa fa-building',
+                            'is_root' => false,
+                            'tree'  => $root,
+                            'base' => '/admin/activity',
+                    )
             );
-            $mapper->save();
+            
+            $children = array(
+                    array( 'title'=>'List', 'route'=>'/admin/activity', 'icon'=>'fa fa-list' ),
+                    array( 'title'=>'Add New', 'route'=>'/admin/activity/create', 'icon'=>'fa fa-plus' ),
+            );
+            $modules->addChildrenItems( $children, $root );
             
             \Dsc\System::instance()->addMessage('Activity added its admin menu items.');
         }
