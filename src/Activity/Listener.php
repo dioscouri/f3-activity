@@ -18,13 +18,13 @@ class Listener extends \Prefab
                 'icon' => 'fa fa-bolt',
                 'is_root' => false,
                 'tree' => $root,
-                'base' => '/admin/activity'
+                'base' => '/admin/activities'
             ));
             
             $children = array(
                 array(
                     'title' => 'List',
-                    'route' => '/admin/activity',
+                    'route' => '/admin/activities',
                     'icon' => 'fa fa-bar-chart-o'
                 ),
             );
