@@ -44,25 +44,24 @@ class Actions extends \Dsc\Mongo\Collection
     public static function track( $action, $properties=array() )
     {
         $model = new static($properties);
-    
         $model->created = time();
+        $model->app = \Base::instance()->get('APP_NAME');
         $model->action = $action;
-        // TODO Set these
-        $model->actor_id = md5(rand(5,1000));
-        $model->actor_name = 'John Smith';
-    	
-        //switched to save to demo pusher
-        return $model->save();
+        $model->actor_id = self::fetchActorId();
+        $model->actor_name = self::fetchActorName();
+        $model->store();
+       	
+        \Dsc\System::instance()->trigger('afterCreateActivityModelsActions', array('model' => $model));
     }
     
     public static function fetchActorId()
     {
-        
+        return md5(rand(5,1000));
     }
     
     public static function fetchActorName()
     {
-    
+    	return 'John Smith';
     }
     
   
