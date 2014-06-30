@@ -47,8 +47,8 @@ class Actions extends \Dsc\Mongo\Collection
         $model->created = time();
         $model->app = \Base::instance()->get('APP_NAME');
         $model->action = $action;
-        $model->actor_id = self::fetchActorId();
-        $model->actor_name = self::fetchActorName();
+        $model->actor_id = static::fetchActorId();
+        $model->actor_name = static::fetchActorName();
         $model->store();
        	
         \Dsc\System::instance()->trigger('afterCreateActivityModelsActions', array('model' => $model));
