@@ -49,10 +49,11 @@ class Actions extends \Dsc\Mongo\Collection
         $model->set('created.microtime', microtime( true ) );
         $model->action = $action;
         // TODO Set these
-        $model->actor_id = null;
-        $model->actor_name = null;
-    
-        return $model->store();
+        $model->actor_id = md5(rand(5,1000));
+        $model->actor_name = 'John Smith';
+    	
+        //switched to save to demo pusher
+        return $model->save();
     }
     
     public static function fetchActorId()
@@ -63,7 +64,11 @@ class Actions extends \Dsc\Mongo\Collection
     public static function fetchActorName()
     {
     
-    }    
+    }
+    
+  
+    
+    
 }
 
 ?>

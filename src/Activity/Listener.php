@@ -39,11 +39,11 @@ class Listener extends \Dsc\Singleton
             \Dsc\System::instance()->addMessage('Activity added its admin menu items.');
         }
     }
-
-    public function afterSaveUsersModelsUsers($event)
-    {
-        $doc = $event->getArgument('model');
-        
-        //(new \Activity\Models\Activity())->track('save', 'test', $doc->cast());
+    
+    public function afterCreateActivityModelsActions($event) {
+    	$model = $event->getArgument('model');
+    	$this->pusher->trigger('dashboard','event', array('actor_id' => $model->actor_id, 'action'=> $model->action)); 
     }
+
+    
 }
