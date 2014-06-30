@@ -6,7 +6,7 @@ class Actions extends \Dsc\Mongo\Collection
     public $actor_id; // MongoId
     public $actor_name; // text
     public $action; // text
-    public $created; // metastamp
+    public $created; // time()
     
     protected $__collection_name = 'activities.actions';
 
@@ -45,8 +45,7 @@ class Actions extends \Dsc\Mongo\Collection
     {
         $model = new static($properties);
     
-        $model->created = \Dsc\Mongo\Metastamp::getDate( 'now' );
-        $model->set('created.microtime', microtime( true ) );
+        $model->created = time();
         $model->action = $action;
         // TODO Set these
         $model->actor_id = md5(rand(5,1000));
