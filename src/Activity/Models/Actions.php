@@ -43,9 +43,10 @@ class Actions extends \Dsc\Mongo\Collection
     
     public static function track( $action, $properties=array() )
     {
-        $model = new static($properties);
+        $model = new static();
+        $model->properties = $properties;
         $model->created = time();
-        $model->app = \Base::instance()->get('APP_NAME');
+        $model->instance = \Base::instance()->get('APP_NAME');
         $model->action = $action;
         $model->actor_id = static::fetchActorId();
         $model->actor_name = static::fetchActorName();
