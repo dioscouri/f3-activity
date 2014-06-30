@@ -1,7 +1,7 @@
 <?php
 namespace Activity;
 
-class Listener extends \Prefab
+class Listener extends \Dsc\Singleton
 {
 
     public function onSystemRebuildMenu($event)
@@ -23,10 +23,15 @@ class Listener extends \Prefab
             
             $children = array(
                 array(
-                    'title' => 'List',
-                    'route' => '/admin/activities',
+                    'title' => 'Actions',
+                    'route' => '/admin/activities/actions',
                     'icon' => 'fa fa-bar-chart-o'
                 ),
+                array(
+                    'title' => 'Settings',
+                    'route' => './admin/activities/settings',
+                    'icon' => 'fa fa-cogs'
+                )                
             );
             
             $activity->addChildren($children, $root);
@@ -39,6 +44,6 @@ class Listener extends \Prefab
     {
         $doc = $event->getArgument('model');
         
-        (new \Activity\Models\Activity())->track('save', 'test', $doc->cast());
+        //(new \Activity\Models\Activity())->track('save', 'test', $doc->cast());
     }
 }
