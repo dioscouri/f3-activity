@@ -64,10 +64,6 @@ class Actions extends \Dsc\Mongo\Collection
     {
     	return 'John Smith';
     }
-    
-  
-    
-    
 }
 
 ?>
