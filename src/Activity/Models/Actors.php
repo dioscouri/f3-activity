@@ -5,6 +5,7 @@ class Actors extends \Dsc\Mongo\Collection
 {
     public $name; // text, preferably email address
     public $created; // time()
+    public $visited; // time()
     public $last_visit; // YYYY-MM-DD
     public $user_id;
     public $session_id;
@@ -199,6 +200,15 @@ class Actors extends \Dsc\Mongo\Collection
         if (empty($this->created)) 
         {
             $this->created = time();
+        }
+        
+        if (empty($this->visited) && !empty($this->last_visit))
+        {
+            $this->visited = strtotime($this->last_visit);
+        }
+        elseif (empty($this->visited))
+        {
+            $this->visited = time();
         }
         
         return parent::beforeSave();

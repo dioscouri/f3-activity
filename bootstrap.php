@@ -41,7 +41,7 @@ class ActivityBootstrap extends \Dsc\Bootstrap
         if (empty($actor->last_visit) || $actor->last_visit < date('Y-m-d', strtotime('today'))) 
         {
             \Activity\Models\Actions::track('Visited Site');
-            $actor->set('last_visit', date('Y-m-d', strtotime('today') ) )->save();
+            $actor->set('last_visit', date('Y-m-d', strtotime('today') ) )->set('visited', time())->save();
         }
     }    
 }
