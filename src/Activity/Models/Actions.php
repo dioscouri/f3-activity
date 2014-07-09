@@ -9,6 +9,12 @@ class Actions extends \Dsc\Mongo\Collection
     public $created; // time()
     
     protected $__collection_name = 'activities.actions';
+    
+    protected $__config = array(
+        'default_sort' => array(
+            'created' => -1
+        )
+    );    
 
     protected function fetchConditions()
     {
@@ -43,26 +49,51 @@ class Actions extends \Dsc\Mongo\Collection
     
     public static function track( $action, $properties=array() )
     {
+        // TODO Allow admin to enable/disable tracking in the admin
+        
         $model = new static();
         $model->properties = $properties;
         $model->created = time();
         $model->instance = \Base::instance()->get('APP_NAME');
         $model->action = $action;
-        $model->actor_id = static::fetchActorId();
-        $model->actor_name = static::fetchActorName();
+        
+        $actor = static::fetchActor();
+        
+        $model->actor_id = $actor->id;
+        $model->actor_name = $actor->name();
         $model->store();
        	
         \Dsc\System::instance()->trigger('afterCreateActivityModelsActions', array('model' => $model));
     }
     
-    public static function fetchActorId()
+    public static function fetchActor()
     {
-        return md5(rand(5,1000));
+        return \Activity\Models\Actors::fetch();
     }
     
-    public static function fetchActorName()
+    public function displayValue($value)
     {
-    	return 'John Smith';
+        if (is_string($value)) 
+        {
+            return $value;
+        }
+        
+        $string = '';
+        if (is_array($value)) 
+        {
+            $string .= '<ul>';
+            foreach ($value as $k=>$v) 
+            {
+                if (is_array($v)) {
+                    $string .= '<li><b>'. $k .':</b> ' . \Joomla\Utilities\ArrayHelper::toString($v) . '</li>';
+                } else {
+                    $string .= '<li><b>'. $k .':</b> ' . $v . '</li>';
+                }                
+            }
+            $string .= '</ul>';
+        }
+        
+        return $string;
     }
 }
 

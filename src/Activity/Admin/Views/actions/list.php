@@ -136,10 +136,13 @@
                     </div>
                     <div class="col-xs-10 col-md-11">
                         Sort by:
+                        <a class="btn btn-link" data-sortable="created">Date</a>
+                        <?php /* ?>
                         <a class="btn btn-link" data-sortable="action">Title</a>
                         <a class="btn btn-link" data-sortable="inventory_count">Inventory</a>
                         <a class="btn btn-link" data-sortable="prices.default">Price</a>
-                        <a class="btn btn-link" data-sortable="publication.start_date">Publication Date</a>            
+                        <a class="btn btn-link" data-sortable="publication.start_date">Publication Date</a>
+                        */ ?>            
                     </div>
                 </div>
             </div>        
@@ -151,22 +154,36 @@
                         <input type="checkbox" class="icheck-input icheck-id" name="ids[]" value="<?php echo $item->id; ?>">
                     </div>
                                                 
-                    <div class="col-xs-8 col-sm-9 col-md-9">
+                    <div class="col-xs-11 col-sm-11 col-md-11">
                         <div class="row">
-                            <div class="col-xs-12 col-sm-8 col-md-8">
+                            <div class="col-xs-12 col-sm-4 col-md-6">
                                 <h5>
-                                    <a href="./admin/activities/action/edit/<?php echo $item->id; ?>">
+                                    <?php /* ?><a href="./admin/activities/action/edit/<?php echo $item->id; ?>"> */ ?>
                                     <?php echo $item->actor_name; ?>
-                                    <?php echo $item->action; ?>
-                                    </a>
+                                    <?php /* ?></a> */ ?>
                                 </h5>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
-                                <p>[property data]</p>
+                                <h5>
+                                    <?php /* ?><a href="./admin/activities/action/edit/<?php echo $item->id; ?>"> */ ?>
+                                    <?php echo $item->action; ?>
+                                    <?php /* ?></a> */ ?>
+                                </h5>
                                 <div>
-                                    <?php echo $item->properties; ?>
+                                    <?php if (!empty($item->properties)) { ?>
+                                    <ul>
+                                        <?php foreach ($item->properties as $key=>$value) { ?>
+                                            <li>
+                                                <b><?php echo $key; ?>:</b>&nbsp; <?php echo $item->displayValue($value); ?>
+                                            </li>
+                                        <?php } ?>
+                                    </ul>
+                                    <?php } ?>
                                 </div>                                                        
                             </div>
+                            <div class="col-xs-12 col-sm-4 col-md-2">
+                                <?php echo date( 'Y-m-d g:i a', $item->created ); ?>
+                            </div>                            
                         </div>
 
                     </div>

@@ -30,5 +30,19 @@ class ActivityBootstrap extends \Dsc\Bootstrap
             }
         }
     }
+    
+    protected function postSite()
+    {
+        parent::postSite();
+        
+        $actor = \Activity\Models\Actors::fetch();
+        
+        // Track the site visit if it hasn't been done today for this actor
+        if (empty($actor->last_visit) || $actor->last_visit < date('Y-m-d', strtotime('today'))) 
+        {
+            \Activity\Models\Actions::track('Visited Site');
+            $actor->set('last_visit', date('Y-m-d', strtotime('today') ) )->save();
+        }
+    }    
 }
 $app = new ActivityBootstrap();

@@ -6,7 +6,8 @@ class Fingerprint extends \Dsc\Controller
     public function index()
     {
         $fingerprint = $this->inputfilter->clean($this->app->get('PARAMS.id'), 'alnum');
-        
+        \Dsc\System::instance()->get('session')->set('activity.fingerprint', $fingerprint);
+                
         $identity = $this->getIdentity();
         if (!empty($identity->id)) 
         {
@@ -19,20 +20,20 @@ class Fingerprint extends \Dsc\Controller
                 $fingerprints[] = $fingerprint;
                 $identity->{'activities.fingerprints'} = $fingerprints;
                 $identity->save();
-                
-                // TODO Update all actions with this fingerprint an associate them with this user
-                /*
-                \Dsc\Queue::task('\Affiliates\Models\Referrals::checkFingerprints', array('id'=>$identity->id), array(
-                    'title' => 'Checking browser fingerprints in referrals from affiliate: ' . $identity->fullName()
-                ));
-                */
+
+                // ensure that the fingerprint is added to the actor, which is 
+                // something that is handled by fetch()
+                $actor = \Activity\Models\Actors::fetch();
             }
         }
         
-        // the user not yet identified 
+        // the user not yet identified
+        // so store the fingerprint in the session actor
         else 
         {
-            
+            $actor = \Activity\Models\Actors::fetch();
+            $actor->fingerprints = array_unique( array_merge( $actor->fingerprints, array( $fingerprint ) ) );
+            $actor->save();
         }
         
     }
