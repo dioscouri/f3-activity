@@ -106,7 +106,16 @@ class Actors extends \Dsc\Mongo\Collection
             // if so, and if that actor_id is valid, use that $actor
             $app = \Base::instance();
             
-            if ($cookie_actor_id = $app->get('COOKIE.actor_id')) 
+            $cookie_actor_id = $app->get('COOKIE.actor_id');
+            $cookie_actor_id_ok = false;
+            
+            $regex = '/^[0-9a-z]{24}$/';
+            if (preg_match($regex, (string) $cookie_actor_id))
+            {
+                $cookie_actor_id_ok = true;
+            }
+                        
+            if ($cookie_actor_id && $cookie_actor_id_ok) 
             {
                 $cookie_actor = new static;
                 $cookie_actor->load(array('_id' => new \MongoId( (string) $cookie_actor_id )));
