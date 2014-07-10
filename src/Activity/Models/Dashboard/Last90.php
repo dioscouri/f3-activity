@@ -3,17 +3,12 @@ namespace Activity\Models\Dashboard;
 
 class Last90 extends \Activity\Models\Dashboard
 {
-    public function totalSales()
+    public function total()
     {
-        return $this->fetchTotalSales(date('Y-m-d 00:00:00', strtotime('today -90 days')));
+        return $this->fetchTotal(date('Y-m-d 00:00:00', strtotime('today -89 days')));
     }
     
-    public function topSellers()
-    {
-        return $this->fetchtopSellers(date('Y-m-d 00:00:00', strtotime('today -90 days')));
-    }    
-    
-    public function salesData()
+    public function chartData()
     {
         $return = array();
         
@@ -23,20 +18,24 @@ class Last90 extends \Activity\Models\Dashboard
             'Total'
         );
         
-        $start = date('Y-m-d', strtotime('today -90 days'));
+        $start = date('Y-m-d', strtotime('today -89 days'));
         $n=0;
         while ($n<90) 
         {
-            $result = $this->fetchTotalSales(date('Y-m-d 00:00:00', strtotime( $start . ' +' . $n . ' days' )), date('Y-m-d 00:00:00', strtotime( $start . ' +' . $n+7 . ' days' )));
-            $results[] =  array(
-                date('m/d', strtotime( $start . ' +' . $n . ' days' ) ),
+            $start_date = (new \DateTime($start))->add( \DateInterval::createFromDateString( $n . ' days' ) );
+            $start_datetime = $start_date->format('Y-m-d 00:00:00');
+            $end_datetime = (new \DateTime($start))->add( \DateInterval::createFromDateString( ($n + 1) . ' days' ) )->format('Y-m-d 00:00:00');
+            
+            $result = $this->fetchTotal($start_datetime, $end_datetime);
+            $results[] = array(
+                $start_date->format('m/d'),
                 $result
             );
             
-            $n=$n+7;
+            $n++;
         }
         
-        $return['haxis.title'] = 'Week of';
+        $return['haxis.title'] = 'Day';
         $return['results'] = $results;
         
         return $return;

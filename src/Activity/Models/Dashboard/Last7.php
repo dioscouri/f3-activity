@@ -3,18 +3,12 @@ namespace Activity\Models\Dashboard;
 
 class Last7 extends \Activity\Models\Dashboard
 {
-
-    public function totalSales()
+    public function total()
     {
-        return $this->fetchTotalSales(date('Y-m-d 00:00:00', strtotime('today -7 days')));
+        return $this->fetchTotal(date('Y-m-d 00:00:00', strtotime('today -6 days')));
     }
 
-    public function topSellers()
-    {
-        return $this->fetchtopSellers(date('Y-m-d 00:00:00', strtotime('today -7 days')));
-    }
-
-    public function salesData()
+    public function chartData()
     {
         $return = array();
         
@@ -24,12 +18,16 @@ class Last7 extends \Activity\Models\Dashboard
             'Total'
         );
         
-        $start = date('Y-m-d', strtotime('today -7 days'));
+        $start = date('Y-m-d', strtotime('today -6 days'));
         for ($n = 0; $n < 7; $n++)
         {
-            $result = $this->fetchTotalSales(date('Y-m-d 00:00:00', strtotime($start . ' +' . $n . ' days')), date('Y-m-d 00:00:00', strtotime($start . ' +' . $n + 1 . ' days')));
+            $start_date = (new \DateTime($start))->add( \DateInterval::createFromDateString( $n . ' days' ) );
+            $start_datetime = $start_date->format('Y-m-d 00:00:00');
+            $end_datetime = (new \DateTime($start))->add( \DateInterval::createFromDateString( ($n + 1) . ' days' ) )->format('Y-m-d 00:00:00');
+            
+            $result = $this->fetchTotal($start_datetime, $end_datetime);
             $results[] = array(
-                date('m/d', strtotime($start . ' +' . $n . ' days')),
+                $start_date->format('m/d'),
                 $result
             );
         }

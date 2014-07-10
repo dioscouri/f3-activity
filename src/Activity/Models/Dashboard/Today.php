@@ -3,17 +3,12 @@ namespace Activity\Models\Dashboard;
 
 class Today extends \Activity\Models\Dashboard
 {
-    public function totalSales()
+    public function total()
     {
-        return $this->fetchTotalSales(date('Y-m-d'));
+        return $this->fetchTotal(date('Y-m-d'));
     }
     
-    public function topSellers()
-    {
-        return $this->fetchtopSellers(date('Y-m-d'));
-    }
-    
-    public function salesData()
+    public function chartData()
     {
         $return = array();
         
@@ -25,7 +20,7 @@ class Today extends \Activity\Models\Dashboard
         
         for ($n=0; $n<24; $n++) 
         {
-            $result = $this->fetchTotalSales(date('Y-m-d '.$n.':00:00', strtotime('today')), date('Y-m-d '.$n.':59:59', strtotime('today')));
+            $result = $this->fetchTotal(date('Y-m-d '.$n.':00:00', strtotime('today')), date('Y-m-d '.$n.':59:59', strtotime('today')));
             $results[] =  array(
                 date('g a', strtotime( '2014-01-01 '.$n.':00:00' ) ),
                 $result
