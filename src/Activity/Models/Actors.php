@@ -298,7 +298,10 @@ class Actors extends \Dsc\Mongo\Collection
         if (is_null($this->is_bot)) 
         {
             $this->is_bot = \Activity\Lib\Excluded::actor($this);
-            $this->store();
+            if (!empty($this->id)) 
+            {
+                $this->store();
+            }            
         }
         
         return (bool) $this->is_bot;
