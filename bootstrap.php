@@ -37,6 +37,23 @@ class ActivityBootstrap extends \Dsc\Bootstrap
         
         $actor = \Activity\Models\Actors::fetch();
         
+        $app = \Base::instance();
+        $request_kmi = \Dsc\System::instance()->get('input')->get('kmi');
+        $cookie_kmi = $app->get('COOKIE.kmi');
+        if (!empty($request_kmi))
+        {
+            if ($cookie_kmi != $request_kmi)
+            {
+                $app->set('COOKIE.kmi', $request_kmi);
+            }
+        
+            if (empty($actor->name))
+            {
+                $actor->name = $request_kmi;
+                $actor->store();
+            }
+        }        
+        
         // Track the site visit if it hasn't been done today for this actor
         if (empty($actor->last_visit) || $actor->last_visit < date('Y-m-d', strtotime('today'))) 
         {
