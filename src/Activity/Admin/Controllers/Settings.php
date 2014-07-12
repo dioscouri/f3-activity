@@ -6,7 +6,7 @@ class Settings extends \Admin\Controllers\BaseAuth
 	use \Dsc\Traits\Controllers\Settings;
 	
 	protected $layout_link = 'Activity/Admin/Views::settings/default.php';
-	protected $settings_route = '/admin/activity/settings';
+	protected $settings_route = '/admin/activities/settings';
     
     protected function getModel()
     {

@@ -15,6 +15,9 @@ class Actors extends \Dsc\Mongo\Collection
     public $ips = array();
     public $agents = array();
     public $is_bot; // null|bool
+    public $is_bot_last_checked; // time()
+    public $is_excluded; // null|bool
+    public $is_excluded_last_checked; // time()
     
     protected $__collection_name = 'activities.actors';
     
@@ -270,6 +273,12 @@ class Actors extends \Dsc\Mongo\Collection
             $this->visited = time();
         }
         
+        if (empty($this->is_bot_last_checked) || $this->is_bot_last_checked < date('Y-m-d', strtotime('today')))
+        {
+            $this->is_bot = (new \Activity\Lib\Excluded)->setActor($this)->isBot();
+            $this->is_bot_last_checked = time();
+        }
+        
         return parent::beforeSave();
     }
     
@@ -294,12 +303,48 @@ class Actors extends \Dsc\Mongo\Collection
      */
     public function isExcluded()
     {
-        // is this actor a bot?
-        if (is_null($this->is_bot)) 
+        if (is_null($this->is_excluded)) 
         {
-            $this->is_bot = \Activity\Lib\Excluded::actor($this);
+            $this->is_excluded = \Activity\Lib\Excluded::actor($this);
             if (!empty($this->id)) 
             {
+                $this->store();
+            }
+        }
+        
+        elseif (empty($this->is_excluded_last_checked) || $this->is_excluded_last_checked < date('Y-m-d', strtotime('today')))
+        {
+            $this->is_excluded = \Activity\Lib\Excluded::actor($this);
+            if (!empty($this->id))
+            {
+                $this->is_excluded_last_checked = time();
+                $this->store();
+            }
+        }        
+        
+        return (bool) $this->is_excluded;
+    }
+    
+    /**
+     * Is this a bot?
+     */
+    public function isBot()
+    {
+        if (is_null($this->is_bot))
+        {
+            $this->is_bot = (new \Activity\Lib\Excluded)->setActor($this)->isBot();
+            if (!empty($this->id))
+            {
+                $this->store();
+            }
+        }
+
+        elseif (empty($this->is_bot_last_checked) || $this->is_bot_last_checked < date('Y-m-d', strtotime('today')))
+        {
+            $this->is_bot = (new \Activity\Lib\Excluded)->setActor($this)->isBot();
+            if (!empty($this->id))
+            {
+                $this->is_bot_last_checked = time();
                 $this->store();
             }            
         }

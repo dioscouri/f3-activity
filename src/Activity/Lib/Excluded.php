@@ -47,7 +47,7 @@ class Excluded
      */
     public function excludedActor()
     {
-        if ($this->isNonHumanBot()) 
+        if ($this->isBot()) 
         {
             return true;
         }
@@ -78,25 +78,38 @@ class Excluded
     
     /**
      * Has admin specified IPs to exclude? 
-     * TODO Finish this by adding a settings admin input
      * 
      * @return boolean
      */
     public function isIpExcluded() 
     {
-        return false;
+        $isexcluded = false;
+        
+        $excluded_ips = (array) \Activity\Models\Settings::fetch()->{'excluded.ips'};
+        
+        if (!empty($excluded_ips)) 
+        {
+            foreach ($this->getActor()->ips as $ip)
+            {
+                $network_address_ip = static::P2N($ip);
+                $isexcluded = (bool) static::isIpInRange( $network_address_ip, $excluded_ips);
+                
+                if ($isexcluded)
+                {
+                    break;
+                }
+            }            
+        }
+        
+        return $isexcluded;
     }
     
     /**
-     * Live/Bing/MSN bot and Googlebot are evolving to detect cloaked websites.
-     * As a result, these sophisticated bots exhibit characteristics of
-     * browsers (cookies enabled, executing JavaScript, etc).
-     *
-     * @see \DeviceDetector\Parser\Bot
-     *
+     * Is this a bot?
+     * 
      * @return boolean
      */
-    protected function isNonHumanBot()
+    public function isBot()
     {
         return ($this->isBotUA() || $this->isBotIp());
     }
@@ -106,13 +119,14 @@ class Excluded
      *
      * @return boolean
      */    
-    protected function isBotIp()
+    public function isBotIp()
     {
         $isbot = false;
         
         foreach ($this->getActor()->ips as $ip)
         {
-            $isbot = (bool) static::isIpInRange($ip, static::getBotIpRanges());
+            $network_address_ip = static::P2N($ip);
+            $isbot = (bool) static::isIpInRange($network_address_ip, static::getBotIpRanges());
             if ($isbot)
             {
                 break;
@@ -127,7 +141,7 @@ class Excluded
      * 
      * @return boolean
      */
-    protected function isBotUA()
+    public function isBotUA()
     {
         $isbot = false;
         
@@ -223,10 +237,11 @@ class Excluded
                 // expect CIDR format but handle some variations
                 $range = static::getIpsForRange($range);
             }
+
             if ($range === false) {
                 continue;
             }
-    
+
             $low = $range[0];
             $high = $range[1];
             if (strlen($low) != $ipLen) {
@@ -253,6 +268,136 @@ class Excluded
         // use @inet_pton() because it throws an exception and E_WARNING on invalid input
         $ip = @inet_pton($ipString);
         return $ip === false ? "\x00\x00\x00\x00" : $ip;
+    }    
+    
+    /**
+     * Get low and high IP addresses for a specified range.
+     *
+     * @param array $ipRange An IP address range in presentation format.
+     * @return array|bool  Array `array($lowIp, $highIp)` in network address format, or false on failure.
+     */
+    public static function getIpsForRange($ipRange)
+    {
+        if (strpos($ipRange, '/') === false) {
+            $ipRange = static::sanitizeIpRange($ipRange);
+        }
+        $pos = strpos($ipRange, '/');
+    
+        $bits = substr($ipRange, $pos + 1);
+        $range = substr($ipRange, 0, $pos);
+        $high = $low = @inet_pton($range);
+        if ($low === false) {
+            return false;
+        }
+    
+        $lowLen = strlen($low);
+        $i = $lowLen - 1;
+        $bits = $lowLen * 8 - $bits;
+    
+        for ($n = (int)($bits / 8); $n > 0; $n--, $i--) {
+            $low[$i] = chr(0);
+            $high[$i] = chr(255);
+        }
+    
+        $n = $bits % 8;
+        if ($n) {
+            $low[$i] = chr(ord($low[$i]) & ~((1 << $n) - 1));
+            $high[$i] = chr(ord($high[$i]) | ((1 << $n) - 1));
+        }
+    
+        return array($low, $high);
+    }    
+    
+    /**
+     * Sanitize human-readable (user-supplied) IP address range.
+     *
+     * Accepts the following formats for $ipRange:
+     * - single IPv4 address, e.g., 127.0.0.1
+     * - single IPv6 address, e.g., ::1/128
+     * - IPv4 block using CIDR notation, e.g., 192.168.0.0/22 represents the IPv4 addresses from 192.168.0.0 to 192.168.3.255
+     * - IPv6 block using CIDR notation, e.g., 2001:DB8::/48 represents the IPv6 addresses from 2001:DB8:0:0:0:0:0:0 to 2001:DB8:0:FFFF:FFFF:FFFF:FFFF:FFFF
+     * - wildcards, e.g., 192.168.0.*
+     *
+     * @param string $ipRangeString IP address range
+     * @return string|bool  IP address range in CIDR notation OR false
+     */
+    public static function sanitizeIpRange($ipRangeString)
+    {
+        $ipRangeString = trim($ipRangeString);
+        if (empty($ipRangeString)) {
+            return false;
+        }
+    
+        // IPv4 address with wildcards '*'
+        if (strpos($ipRangeString, '*') !== false) {
+            if (preg_match('~(^|\.)\*\.\d+(\.|$)~D', $ipRangeString)) {
+                return false;
+            }
+    
+            $bits = 32 - 8 * substr_count($ipRangeString, '*');
+            $ipRangeString = str_replace('*', '0', $ipRangeString);
+        }
+    
+        // CIDR
+        if (($pos = strpos($ipRangeString, '/')) !== false) {
+            $bits = substr($ipRangeString, $pos + 1);
+            $ipRangeString = substr($ipRangeString, 0, $pos);
+        }
+    
+        // single IP
+        if (($ip = inet_pton($ipRangeString)) === false)
+            return false;
+    
+        $maxbits = strlen($ip) * 8;
+        if (!isset($bits))
+            $bits = $maxbits;
+
+        if ($bits < 0 || $bits > $maxbits) {
+            return false;
+        }
+    
+        return "$ipRangeString/$bits";
+    }
+
+    /**
+     * Removes the port and the last portion of a CIDR IP address.
+     *
+     * @param string $ipString The IP address to sanitize.
+     * @return string
+     */
+    public static function sanitizeIp($ipString)
+    {
+        $ipString = trim($ipString);
+    
+        // CIDR notation, A.B.C.D/E
+        $posSlash = strrpos($ipString, '/');
+        if ($posSlash !== false) {
+            $ipString = substr($ipString, 0, $posSlash);
+        }
+    
+        $posColon = strrpos($ipString, ':');
+        $posDot = strrpos($ipString, '.');
+        if ($posColon !== false) {
+            // IPv6 address with port, [A:B:C:D:E:F:G:H]:EEEE
+            $posRBrac = strrpos($ipString, ']');
+            if ($posRBrac !== false && $ipString[0] == '[') {
+                $ipString = substr($ipString, 1, $posRBrac - 1);
+            }
+    
+            if ($posDot !== false) {
+                // IPv4 address with port, A.B.C.D:EEEE
+                if ($posColon > $posDot) {
+                    $ipString = substr($ipString, 0, $posColon);
+                }
+                // else: Dotted quad IPv6 address, A:B:C:D:E:F:G.H.I.J
+            } else if (strpos($ipString, ':') === $posColon) {
+                $ipString = substr($ipString, 0, $posColon);
+            }
+            // else: IPv6 address, A:B:C:D:E:F:G:H
+        }
+        // else: IPv4 address, A.B.C.D
+    
+        return $ipString;
     }    
     
     /**

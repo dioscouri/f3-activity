@@ -158,7 +158,8 @@
                         <div class="row">
                             <div class="col-xs-12 col-sm-4 col-md-6">
                                 <h5>
-                                    <?php if ($item->actor()->isExcluded()) { echo "<span class='label label-warning'>bot</span>&nbsp;"; } ?>
+                                    <?php if ($item->actor()->isExcluded()) { echo "<span class='label label-danger'>excluded</span>&nbsp;"; } ?>
+                                    <?php if ($item->actor()->isBot()) { echo "<span class='label label-warning'>bot</span>&nbsp;"; } ?>
                                     <?php /* ?><a href="./admin/activities/action/edit/<?php echo $item->id; ?>"> */ ?>
                                     <?php echo $item->actor_name; ?>
                                     <?php /* ?></a> */ ?>
