@@ -311,6 +311,16 @@ class Actors extends \Dsc\Mongo\Collection
     }
     
     /**
+     *
+     */
+    protected function afterSave()
+    {
+        $this->actionCount();
+        
+        return parent::afterSave();
+    }    
+    
+    /**
      * 
      * @return string
      */
