@@ -17,6 +17,53 @@ class Actors extends \Dsc\Mongo\Collection
     
     protected $__collection_name = 'activities.actors';
     
+    protected function fetchConditions()
+    {
+        parent::fetchConditions();
+    
+        $filter_keyword = $this->getState('filter.keyword');
+        if ($filter_keyword && is_string($filter_keyword))
+        {
+            $key = new \MongoRegex('/' . $filter_keyword . '/i');
+    
+            $where = array();
+    
+            $where[] = array(
+                'name' => $key
+            );
+            
+            $where[] = array(
+                'session_id' => $key
+            );
+            
+            $where[] = array(
+                'fingerprints' => $key
+            );
+            
+            $where[] = array(
+                'ips' => $key
+            );
+            
+            $where[] = array(
+                'agents' => $key
+            );            
+    
+            $this->setCondition('$or', $where);
+        }
+    
+        $filter_user = $this->getState('filter.user');
+        if (strlen($filter_user))
+        {
+            $regex = '/^[0-9a-z]{24}$/';
+            if (preg_match($regex, (string) $filter_user))
+            {
+                $this->setCondition('user_id', new \MongoId( (string) $filter_user ));
+            }            
+        }
+    
+        return $this;
+    }    
+    
     public static function fetch()
     {
         $app = \Base::instance();

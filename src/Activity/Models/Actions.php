@@ -35,6 +35,15 @@ class Actions extends \Dsc\Mongo\Collection
                 'action' => $key
             );
             
+            // get an array of actor_ids based on this keyword search, then add them as an OR
+            $conditions = (new \Activity\Models\Actors)->setState('filter.keyword', $filter_keyword)->conditions();
+            if ($actor_ids = \Activity\Models\Actors::collection()->distinct("_id", $conditions)) 
+            {
+                $where[] = array(
+                    'actor_id' => array( '$in' => $actor_ids)
+                );
+            }
+            
             $this->setCondition('$or', $where);
         }
         
