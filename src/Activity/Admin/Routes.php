@@ -14,6 +14,6 @@ class Routes extends \Dsc\Routes\Group
         $this->addSettingsRoutes();
         
         $this->addCrudGroup( 'Actions', 'Action' );
-        
+        $this->addCrudGroup( 'Actors', 'Actor' );
     }
 }

@@ -18,8 +18,16 @@ class Actors extends \Dsc\Mongo\Collection
     public $is_bot_last_checked; // time()
     public $is_excluded; // null|bool
     public $is_excluded_last_checked; // time()
+    public $action_count; // int
+    public $action_count_last_checked; // time()
     
     protected $__collection_name = 'activities.actors';
+    
+    protected $__config = array(
+        'default_sort' => array(
+            'visited' => -1
+        )
+    );    
     
     protected function fetchConditions()
     {
@@ -370,5 +378,23 @@ class Actors extends \Dsc\Mongo\Collection
         }
         
         return (bool) $this->is_bot;
+    }
+    
+    /**
+     * 
+     */
+    public function actionCount()
+    {
+        if (empty($this->action_count) || empty($this->action_count_last_checked) || $this->action_count_last_checked < (time() - 15*60) )
+        {
+            $this->action_count = \Activity\Models\Actions::collection()->count(array('actor_id' => $this->id));
+            if (!empty($this->id))
+            {
+                $this->action_count_last_checked = time();
+                $this->store();
+            }
+        }
+        
+        return $this->action_count;
     }
 }

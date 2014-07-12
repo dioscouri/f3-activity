@@ -28,6 +28,11 @@ class Listener extends \Dsc\Singleton
                     'icon' => 'fa fa-bar-chart-o'
                 ),
                 array(
+                    'title' => 'Actors',
+                    'route' => '/admin/activities/actors',
+                    'icon' => 'fa fa-users'
+                ),                
+                array(
                     'title' => 'Settings',
                     'route' => './admin/activities/settings',
                     'icon' => 'fa fa-cogs'
