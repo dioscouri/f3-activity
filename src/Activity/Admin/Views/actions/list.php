@@ -162,6 +162,25 @@
                                     <?php echo $item->actor_name; ?>
                                     <?php /* ?></a> */ ?>
                                 </h5>
+                                <?php $actor = $item->actor(); ?>
+                                <?php if (!empty($actor->ips)) { ?>
+                                <ul>
+                                    <?php foreach ($actor->ips as $value) { ?>
+                                        <li>
+                                            <b>IP:</b>&nbsp; <?php echo $value; ?>
+                                        </li>
+                                    <?php } ?>
+                                </ul>
+                                <?php } ?>
+                                <?php if (!empty($actor->agents)) { ?>
+                                <ul>
+                                    <?php foreach ($actor->agents as $value) { ?>
+                                        <li>
+                                            <b>Agent:</b>&nbsp; <?php echo $value; ?>
+                                        </li>
+                                    <?php } ?>
+                                </ul>
+                                <?php } ?>                            
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <h5>

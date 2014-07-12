@@ -101,6 +101,18 @@ class Actions extends \Dsc\Mongo\Collection
         
         return $string;
     }
+    
+    /**
+     * Gets the associated actor object
+     *
+     * @return unknown
+     */
+    public function actor()
+    {
+        $actor = (new \Activity\Models\Actors)->load(array('_id'=>$this->actor_id));
+    
+        return $actor;
+    }    
 }
 
 ?>

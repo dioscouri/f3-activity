@@ -3,14 +3,17 @@ namespace Activity\Models;
 
 class Actors extends \Dsc\Mongo\Collection
 {
+    public $__expire = 2592000; // 30 days = 30 * (24*60*60)
+    
     public $name; // text, preferably email address
     public $created; // time()
     public $visited; // time()
     public $last_visit; // YYYY-MM-DD
     public $user_id;
     public $session_id;
-    public $fingerprints = array();    
+    public $fingerprints = array();
     public $ips = array();
+    public $agents = array();
     
     protected $__collection_name = 'activities.actors';
     
@@ -32,12 +35,15 @@ class Actors extends \Dsc\Mongo\Collection
         // has anything changed in the $actor?
         // or is it a new $actor
         $ip = $_SERVER['REMOTE_ADDR'];
+        $agent = $app->get('AGENT');
         $session_id = \Dsc\System::instance()->get('session')->id();
         $fingerprint = \Dsc\System::instance()->get('session')->get('activity.fingerprint');
-        $fingerprints = array_unique( array_merge( $actor->fingerprints, array( $fingerprint ) ) );
-        $ips = array_unique( array_merge( $actor->ips, array( $ip ) ) );
-        if (empty($actor->id) || $actor->fingerprints != $fingerprints || $actor->ips != $ips)
+        $fingerprints = array_filter( array_unique( array_merge( $actor->fingerprints, array( $fingerprint ) ) ) );
+        $ips = array_filter( array_unique( array_merge( $actor->ips, array( $ip ) ) ) );
+        $agents = array_filter( array_unique( array_merge( $actor->agents, array( $agent ) ) ) );
+        if (empty($actor->id) || $actor->fingerprints != $fingerprints || $actor->ips != $ips || $actor->agents != $agents)
         {
+            $actor->agents = $agents;
             $actor->ips = $ips;
             $actor->session_id = $session_id;
             $actor->fingerprints = $fingerprints;
@@ -50,7 +56,7 @@ class Actors extends \Dsc\Mongo\Collection
         {
             $session_actor_ids = (array) json_decode( $app->get('COOKIE.session_actor_ids') );
             $session_actor_ids = array_unique( array_merge( $session_actor_ids, array( (string) $actor->id ) ) );
-            $app->set('COOKIE.session_actor_ids', json_encode($session_actor_ids) );
+            $app->set('COOKIE.session_actor_ids', json_encode($session_actor_ids), $actor->__expire );
         }
         
         elseif (!empty($actor->user_id) && $app->get('COOKIE.session_actor_ids'))
@@ -79,12 +85,12 @@ class Actors extends \Dsc\Mongo\Collection
                 }
             }
                         
-            $app->set('COOKIE.session_actor_ids', null);
+            $app->set('COOKIE.session_actor_ids', null, $actor->__expire);
         }
         
         // No matter what, update the cookie with the current actor_id
         // TODO Remove this?  Is this necessary?        
-        $app->set('COOKIE.actor_id', (string) $actor->id);        
+        $app->set('COOKIE.actor_id', (string) $actor->id, $actor->__expire);        
         
         return $actor;
     }    
@@ -97,36 +103,29 @@ class Actors extends \Dsc\Mongo\Collection
         $fingerprint = \Dsc\System::instance()->get('session')->get('activity.fingerprint');
         $ip = $_SERVER['REMOTE_ADDR'];
         
-        $actor->load(array('session_id' => $session_id));
+        // check if there is a cookie with an actor_id
+        // if so, and if that actor_id is valid, use that $actor
+        $app = \Base::instance();
+        $cookie_actor_id = $app->get('COOKIE.actor_id');
+        $cookie_actor_id_ok = false;
         
-        // If the actor->id is empty, then this session didn't have an actor_id
-        if (empty($actor->id)) 
+        $regex = '/^[0-9a-z]{24}$/';
+        if (preg_match($regex, (string) $cookie_actor_id))
         {
-            // check if there is a cookie with an actor_id
-            // if so, and if that actor_id is valid, use that $actor
-            $app = \Base::instance();
-            
-            $cookie_actor_id = $app->get('COOKIE.actor_id');
-            $cookie_actor_id_ok = false;
-            
-            $regex = '/^[0-9a-z]{24}$/';
-            if (preg_match($regex, (string) $cookie_actor_id))
-            {
-                $cookie_actor_id_ok = true;
-            }
-                        
-            if ($cookie_actor_id && $cookie_actor_id_ok) 
-            {
-                $cookie_actor = new static;
-                $cookie_actor->load(array('_id' => new \MongoId( (string) $cookie_actor_id )));
-                if (!empty($cookie_actor->id))
-                {
-                    $actor = $cookie_actor;
-                    $actor->session_id = $session_id;
-                }                
-            }            
+            $cookie_actor_id_ok = true;
         }
-
+        
+        if ($cookie_actor_id && $cookie_actor_id_ok)
+        {
+            $cookie_actor = new static;
+            $cookie_actor->load(array('_id' => new \MongoId( (string) $cookie_actor_id )));
+            if (!empty($cookie_actor->id))
+            {
+                $actor = $cookie_actor;
+                $actor->session_id = $session_id;
+            }
+        }        
+        
         if (empty($actor->id))
         {
             // if no cookie, check the session's browser fingerprint
@@ -147,9 +146,14 @@ class Actors extends \Dsc\Mongo\Collection
                 }
             }
         }
+        
+        if (empty($actor->id))
+        {
+            $actor->load(array('session_id' => $session_id));
+        }        
 
         $actor->session_id = $session_id;
-        $actor->fingerprints = array_unique( array_merge( $actor->fingerprints, array( $fingerprint ) ) );
+        $actor->fingerprints = array_filter( array_unique( array_merge( $actor->fingerprints, array( $fingerprint ) ) ) );
     
         return $actor;
     }
@@ -180,7 +184,7 @@ class Actors extends \Dsc\Mongo\Collection
                     array('multiple'=>true)
                 );
                 
-                $actor->fingerprints = array_unique( array_merge( $actor->fingerprints, $session_actor->fingerprints ) );
+                $actor->fingerprints = array_filter( array_unique( array_merge( $actor->fingerprints, $session_actor->fingerprints ) ) );
                 $actor->save();
                 $session_actor->remove();                
             }
