@@ -53,6 +53,38 @@ class Actions extends \Dsc\Mongo\Collection
             $this->setCondition('action', $filter_action);
         }
         
+        $filter_excluded_actors = $this->getState('filter.excluded_actors');
+        if (strlen($filter_excluded_actors))
+        {
+            // get an array of actor_ids, then add them as a filter
+            $conditions = (new \Activity\Models\Actors)->setState('filter.excluded', true)->conditions();
+            $actor_ids = \Activity\Models\Actors::collection()->distinct("_id", $conditions);
+            if ($filter_excluded_actors == 'included_actors')
+            {
+                $this->setCondition('$and', array( 'actor_id' => array( '$nin' => $actor_ids ) ), 'append' );
+            }
+            elseif($filter_excluded_actors == 'excluded_actors')
+            {
+                $this->setCondition('$and', array( 'actor_id' => array( '$in' => $actor_ids ) ), 'append' );
+            }
+        }
+        
+        $filter_bots = $this->getState('filter.bots');
+        if (strlen($filter_bots))
+        {
+            // get an array of actor_ids, then add them as a filter
+            $conditions = (new \Activity\Models\Actors)->setState('filter.bot', true)->conditions();
+            $actor_ids = \Activity\Models\Actors::collection()->distinct("_id", $conditions);
+            if ($filter_bots == 'exclude_bots')
+            {
+                $this->setCondition('$and', array( 'actor_id' => array( '$nin' => $actor_ids ) ), 'append' );
+            }
+            elseif($filter_bots == 'only_bots')
+            {
+                $this->setCondition('$and', array( 'actor_id' => array( '$in' => $actor_ids ) ), 'append' );
+            }
+        }        
+        
         return $this;
     }
     

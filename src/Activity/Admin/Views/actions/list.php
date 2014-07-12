@@ -28,6 +28,20 @@
                 <li>
                     <?php /* ?><a class="btn btn-link" href="javascript:void(0);" onclick="ToggleAdvancedFilters();">Advanced Filters</a> */ ?>
                 </li>
+                <li>
+                    <select name="filter[excluded_actors]" class="form-control" onchange="this.form.submit();">
+                        <option value="">All Actors</option>
+                        <option value="excluded_actors" <?php if ($state->get('filter.excluded_actors') == 'excluded_actors') { echo "selected='selected'"; } ?>>Excluded Only</option>
+                        <option value="included_actors" <?php if ($state->get('filter.excluded_actors') == 'included_actors') { echo "selected='selected'"; } ?>>Included Only</option>
+                    </select>                
+                </li>
+                <li>
+                    <select name="filter[bots]" class="form-control" onchange="this.form.submit();">
+                        <option value="">Include Bots</option>
+                        <option value="exclude_bots" <?php if ($state->get('filter.bots') == 'exclude_bots') { echo "selected='selected'"; } ?>>Exclude Bots</option>
+                        <option value="only_bots" <?php if ($state->get('filter.bots') == 'only_bots') { echo "selected='selected'"; } ?>>Only Bots</option>
+                    </select>                
+                </li>                
             </ul>        
         </div>
         <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
@@ -137,12 +151,6 @@
                     <div class="col-xs-10 col-md-11">
                         Sort by:
                         <a class="btn btn-link" data-sortable="created">Date</a>
-                        <?php /* ?>
-                        <a class="btn btn-link" data-sortable="action">Title</a>
-                        <a class="btn btn-link" data-sortable="inventory_count">Inventory</a>
-                        <a class="btn btn-link" data-sortable="prices.default">Price</a>
-                        <a class="btn btn-link" data-sortable="publication.start_date">Publication Date</a>
-                        */ ?>            
                     </div>
                 </div>
             </div>        

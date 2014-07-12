@@ -64,6 +64,26 @@ class Actors extends \Dsc\Mongo\Collection
                 $this->setCondition('user_id', new \MongoId( (string) $filter_user ));
             }            
         }
+        
+        $filter_excluded = $this->getState('filter.excluded');
+        if (is_bool($filter_excluded) && !empty($filter_excluded))
+        {
+            $this->setCondition('is_excluded', true);
+        }
+        else if (is_bool($filter_excluded) && empty($filter_excluded))
+        {
+            $this->setCondition('is_excluded', array( '$in' => array( null, false ) ) );
+        }
+        
+        $filter_bot = $this->getState('filter.bot');
+        if (is_bool($filter_bot) && !empty($filter_bot))
+        {
+            $this->setCondition('is_bot', true);
+        }
+        else if (is_bool($filter_bot) && empty($filter_bot))
+        {
+            $this->setCondition('is_bot', array( '$in' => array( null, false ) ) );
+        }        
     
         return $this;
     }    
