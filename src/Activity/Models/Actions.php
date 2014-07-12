@@ -58,20 +58,19 @@ class Actions extends \Dsc\Mongo\Collection
     
     public static function track( $action, $properties=array() )
     {
-        if (\Audit::instance()->isbot()) {
-            return false;            
-        }
-        
         // TODO Allow admin to enable/disable tracking in the admin
+        
+        $actor = static::fetchActor();
+        if ($actor->isExcluded()) 
+        {
+            return false;
+        }
         
         $model = new static();
         $model->properties = $properties;
         $model->created = time();
         $model->instance = \Base::instance()->get('APP_NAME');
         $model->action = $action;
-        
-        $actor = static::fetchActor();
-        
         $model->actor_id = $actor->id;
         $model->actor_name = $actor->name();
         $model->store();

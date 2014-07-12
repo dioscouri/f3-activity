@@ -14,6 +14,7 @@ class Actors extends \Dsc\Mongo\Collection
     public $fingerprints = array();
     public $ips = array();
     public $agents = array();
+    public $is_bot; // null|bool
     
     protected $__collection_name = 'activities.actors';
     
@@ -286,4 +287,20 @@ class Actors extends \Dsc\Mongo\Collection
         return (string) $this->id;
     }
 
+    /**
+     * Is this actor's actions excluded from tracking?
+     * 
+     * @return boolean
+     */
+    public function isExcluded()
+    {
+        // is this actor a bot?
+        if (is_null($this->is_bot)) 
+        {
+            $this->is_bot = \Activity\Lib\Excluded::actor($this);
+            $this->store();
+        }
+        
+        return (bool) $this->is_bot;
+    }
 }
