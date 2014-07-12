@@ -136,14 +136,12 @@ class Actors extends \Dsc\Mongo\Collection
             {
                 if (static::collection()->count(array(
                     'fingerprints' => $fingerprint,
-                    'user_id' => null,
                     'ips' => $ip
                 )))
                 {
                     // Use it
                     $actor->load(array(
                         'fingerprints' => $fingerprint,
-                        'user_id' => null,
                         'ips' => $ip
                     ));
                 }

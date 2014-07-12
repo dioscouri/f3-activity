@@ -49,6 +49,10 @@ class Actions extends \Dsc\Mongo\Collection
     
     public static function track( $action, $properties=array() )
     {
+        if (\Audit::instance()->isbot()) {
+            return false;            
+        }
+        
         // TODO Allow admin to enable/disable tracking in the admin
         
         $model = new static();
@@ -64,6 +68,8 @@ class Actions extends \Dsc\Mongo\Collection
         $model->store();
        	
         \Dsc\System::instance()->trigger('afterCreateActivityModelsActions', array('model' => $model));
+        
+        return true;
     }
     
     public static function fetchActor()
