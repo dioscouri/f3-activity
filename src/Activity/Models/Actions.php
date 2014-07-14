@@ -83,6 +83,60 @@ class Actions extends \Dsc\Mongo\Collection
             {
                 $this->setCondition('$and', array( 'actor_id' => array( '$in' => $actor_ids ) ), 'append' );
             }
+        }    
+
+        $filter_created_after = $this->getState('filter.created_after');
+        if (strlen($filter_created_after))
+        {
+            $filter_created_after = strtotime($filter_created_after);
+        
+            // add $and conditions to the query stack
+            if (!$and = $this->getCondition('$and'))
+            {
+                $and = array();
+            }
+        
+            $and[] = array(
+                '$or' => array(
+                    array(
+                        'created' => 0
+                    ),
+                    array(
+                        'created' => array(
+                            '$gte' => $filter_created_after
+                        )
+                    )
+                )
+            );
+        
+            $this->setCondition('$and', $and);
+        }
+        
+        $filter_created_before = $this->getState('filter.created_before');
+        if (strlen($filter_created_before))
+        {
+            $filter_created_before = strtotime($filter_created_before);
+        
+            // add $and conditions to the query stack
+            if (!$and = $this->getCondition('$and'))
+            {
+                $and = array();
+            }
+        
+            $and[] = array(
+                '$or' => array(
+                    array(
+                        'created' => 0
+                    ),
+                    array(
+                        'created' => array(
+                            '$lte' => $filter_created_before
+                        )
+                    )
+                )
+            );
+        
+            $this->setCondition('$and', $and);
         }        
         
         return $this;
