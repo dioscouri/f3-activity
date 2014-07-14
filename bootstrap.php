@@ -41,7 +41,7 @@ class ActivityBootstrap extends \Dsc\Bootstrap
             
             $app = \Base::instance();
             $request_kmi = \Dsc\System::instance()->get('input')->get('kmi', null, 'string');
-            \Dsc\System::addMessage($request_kmi);
+
             $cookie_kmi = $app->get('COOKIE.kmi');
             if (!empty($request_kmi))
             {
