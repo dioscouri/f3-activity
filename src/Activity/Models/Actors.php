@@ -96,9 +96,14 @@ class Actors extends \Dsc\Mongo\Collection
         return $this;
     }    
     
-    public static function fetch()
+    public static function fetch($email=null)
     {
         $app = \Base::instance();
+        
+        if (!empty($email)) 
+        {
+            return static::fetchForEmail($email);
+        }
         
         $user = \Dsc\System::instance()->get('auth')->getIdentity();
         if (!empty($user->id))
@@ -281,6 +286,46 @@ class Actors extends \Dsc\Mongo\Collection
     
         return $actor;
     }
+    
+    public static function fetchForEmail($email)
+    {
+        $actor = new static;
+    
+        $user = \Users\Models\Users::emailExists( $email );
+    
+        if (!empty($user->id))
+        {
+            $actor->load(array('user_id' => $user->id));
+            $actor->user_id = $user->id;
+            $actor->name = $user->email;
+        }
+        
+        else 
+        {
+            $actor->load(array('name' => $email));
+            $actor->name = $email;
+        }
+        
+        if (empty($actor->id))
+        {
+            $actor->is_excluded = false;
+            $actor->is_excluded_last_checked = date('Y-m-d', strtotime('today'));
+            $actor->is_bot = false;
+            $actor->is_bot_last_checked = date('Y-m-d', strtotime('today'));
+            $actor->save();
+        }
+        
+        if ($actor->is_bot_last_checked < date('Y-m-d', strtotime('today'))
+            || $actor->is_excluded_last_checked < date('Y-m-d', strtotime('today'))
+            )
+        {
+            $actor->is_excluded_last_checked = date('Y-m-d', strtotime('today'));
+            $actor->is_bot_last_checked = date('Y-m-d', strtotime('today'));
+            $actor->store();
+        }
+    
+        return $actor;
+    }    
     
     /**
      * 

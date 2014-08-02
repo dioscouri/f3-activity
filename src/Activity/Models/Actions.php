@@ -166,9 +166,33 @@ class Actions extends \Dsc\Mongo\Collection
         return true;
     }
     
-    public static function fetchActor()
+    public static function trackActor( $email, $action, $properties=array() )
     {
-        return \Activity\Models\Actors::fetch();
+        // TODO Allow admin to enable/disable tracking in the admin
+    
+        $actor = static::fetchActor($email);
+        if ($actor->isExcluded())
+        {
+            return false;
+        }
+    
+        $model = new static();
+        $model->properties = $properties;
+        $model->created = time();
+        $model->instance = \Base::instance()->get('APP_NAME');
+        $model->action = $action;
+        $model->actor_id = $actor->id;
+        $model->actor_name = $actor->name();
+        $model->store();
+    
+        \Dsc\System::instance()->trigger('afterCreateActivityModelsActions', array('model' => $model));
+    
+        return true;
+    }    
+    
+    public static function fetchActor($email=null)
+    {
+        return \Activity\Models\Actors::fetch($email);
     }
     
     public function displayValue($value)
