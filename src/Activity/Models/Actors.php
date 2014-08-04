@@ -9,6 +9,8 @@ class Actors extends \Dsc\Mongo\Collection
     public $created; // time()
     public $visited; // time()
     public $last_visit; // YYYY-MM-DD
+    public $last_activity; // time() when the actor was last active on the site
+    public $logged_in = false;
     public $user_id;
     public $session_id;
     public $fingerprints = array();
@@ -92,6 +94,28 @@ class Actors extends \Dsc\Mongo\Collection
         {
             $this->setCondition('is_bot', array( '$in' => array( null, false ) ) );
         }        
+        
+        $filter_active_after = $this->getState('filter.active_after');
+        if (strlen($filter_active_after))
+        {
+            $this->setCondition( '$and', array( 'last_activity' => array ( '$gt' => $filter_active_after ) ), 'append' );
+        }
+        
+        $filter_active_before = $this->getState('filter.active_before');
+        if (strlen($filter_active_before))
+        {
+            $this->setCondition( '$and', array( 'last_activity' => array ( '$lt' => $filter_active_before ) ), 'append' );
+        }
+        
+        $filter_is_user = $this->getState('filter.is_user');
+        if (is_bool($filter_is_user) && !empty($filter_is_user))
+        {
+            $this->setCondition('user_id', array('$exists' => true, '$nin' => array( '', null ) ));
+        }
+        else if (is_bool($filter_is_user) && empty($filter_is_user))
+        {
+            $this->setCondition('user_id', array('$in' => array( '', null ) ));
+        }
     
         return $this;
     }    
@@ -451,5 +475,47 @@ class Actors extends \Dsc\Mongo\Collection
         }
         
         return $this->action_count;
+    }
+
+    /**
+     * Marks this actor as active 
+     * @return \Activity\Models\Actors
+     */
+    public function markActive($logged_in=null)
+    {
+        $this->last_activity = time();
+        if (is_bool($logged_in)) 
+        {
+            if (!empty($logged_in)) 
+            {
+                $this->logged_in = true;
+            }
+            else 
+            {
+                $this->logged_in = false;
+            }
+        }
+        $this->store();
+        
+        return $this;
+    }
+    
+    /**
+     * 
+     * @param string $after
+     * @param string $before
+     * @return unknown
+     */
+    public static function fetchActiveUsers( $after=null, $before=null )
+    {
+        if (is_null($after)) 
+        {
+            $last_active = 5; // TODO fetch from a setting  // 5 minutes ago
+            $after = time() - ($last_active * 60);
+        }
+        
+        $items = (new static)->setState('filter.active_after', $after)->setState('filter.is_user', true)->getitems();
+        
+        return $items;
     }
 }

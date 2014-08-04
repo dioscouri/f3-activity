@@ -63,6 +63,8 @@ class ActivityBootstrap extends \Dsc\Bootstrap
                 \Activity\Models\Actions::track('Visited Site');
                 $actor->set('last_visit', date('Y-m-d', strtotime('today') ) )->set('visited', time())->save();
             }
+
+            $actor->markActive( !empty( $this->auth->getIdentity()->id ) );
         }
     }    
 }
