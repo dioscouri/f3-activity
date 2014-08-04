@@ -214,7 +214,8 @@ class Actors extends \Dsc\Mongo\Collection
         // check if there is a cookie with an actor_id
         // if so, and if that actor_id is valid, use that $actor
         $app = \Base::instance();
-        $cookie_actor_id = $app->get('COOKIE.actor_id');
+        //$cookie_actor_id = $app->get('COOKIE.actor_id');
+        $cookie_actor_id = null;
         $cookie_actor_id_ok = false;
         
         $regex = '/^[0-9a-z]{24}$/';
@@ -521,4 +522,16 @@ class Actors extends \Dsc\Mongo\Collection
         
         return $items;
     }
+    
+    /**
+     * Gets the associated user object
+     *
+     * @return unknown
+     */
+    public function user()
+    {
+        $user = (new \Users\Models\Users)->load(array('_id'=>$this->user_id));
+    
+        return $user;
+    }    
 }
