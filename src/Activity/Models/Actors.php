@@ -239,6 +239,8 @@ class Actors extends \Dsc\Mongo\Collection
             // if no cookie, check the session's browser fingerprint
             // is it unique enough to be dependable? is there a match for it in the actor's DB where user_id is null?
             // if so, use that $actor
+            /*
+            For now, let's put fingerprinting on pause
             if (!empty($fingerprint))
             {
                 if (static::collection()->count(array(
@@ -253,6 +255,7 @@ class Actors extends \Dsc\Mongo\Collection
                     ));
                 }
             }
+            */
         }
         
         if (empty($actor->id))
