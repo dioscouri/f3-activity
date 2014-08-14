@@ -64,7 +64,10 @@ class ActivityBootstrap extends \Dsc\Bootstrap
                 $actor->set('last_visit', date('Y-m-d', strtotime('today') ) )->set('visited', time())->save();
             }
 
-            $actor->markActive( !empty( $this->auth->getIdentity()->id ) );
+            if ($this->input->get('ping', null, 'int') != 1) 
+            {
+                $actor->markActive( !empty( $this->auth->getIdentity()->id ) );
+            }            
         }
     }    
 }
