@@ -13,6 +13,11 @@ class Routes extends \Dsc\Routes\Group
         $this->add( '/fp/@id [ajax]', 'GET|POST', array(
             'controller' => 'Fingerprint',
             'action' => 'index'
-        ) );        
+        ) );
+
+        $this->add( '/track [ajax]', 'GET|POST', array(
+            'controller' => 'Activity',
+            'action' => 'track'
+        ) );
     }
 }

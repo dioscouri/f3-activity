@@ -9,6 +9,20 @@ class ActivityBootstrap extends \Dsc\Bootstrap
     {
         \Dsc\System::instance()->getDispatcher()->addListener(\Activity\Listener::instance());
         
+        if (class_exists('\Minify\Factory'))
+        {
+            \Minify\Factory::registerPath($this->dir . "/src/");
+        
+            $files = array(
+                'Activity/Assets/js/track.js',
+            );
+        
+            foreach ($files as $file)
+            {
+                \Minify\Factory::js($file);
+            }
+        }
+                
         parent::runAdmin();
     }
     
@@ -22,6 +36,7 @@ class ActivityBootstrap extends \Dsc\Bootstrap
     
             $files = array(
                 'Activity/Assets/js/fingerprint.js',
+                'Activity/Assets/js/track.js',
             );
     
             foreach ($files as $file)
@@ -67,7 +82,7 @@ class ActivityBootstrap extends \Dsc\Bootstrap
             if ($this->input->get('ping', null, 'int') != 1) 
             {
                 $actor->markActive( !empty( $this->auth->getIdentity()->id ) );
-            }            
+            }
         }
     }    
 }
