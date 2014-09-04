@@ -4,6 +4,24 @@ class ActivityBootstrap extends \Dsc\Bootstrap
     protected $dir = __DIR__;
 
     protected $namespace = 'Activity';
+    
+    /**
+     * Runs before all global_apps
+     * 
+     * @param unknown $app
+     */
+    protected function preBase($app)
+    {
+        if (class_exists('\Modules\Factory'))
+        {
+            \Modules\Models\Conditions::register('\Activity\ModuleConditions\Visits', array(
+                'title'=>'Visits',
+                'icon'=>'fa fa-bolt',
+                'type'=>'activity',
+                'slug'=>'activity-visits',
+            ));
+        }
+    }
 
     protected function runAdmin()
     {
