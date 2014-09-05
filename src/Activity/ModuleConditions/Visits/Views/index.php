@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-md-3">
                 <select name="assignment[activity-visits][method]" class="form-control ruleset-switcher">
-                    <option value="ignore" <?php if ($flash->old('assignment.activity-visits.method') == "ignore") { echo "selected='selected'"; } ?>>Ignore</option>
+                    <option value="ignore" <?php if ($flash->old('assignment.activity-visits.method') == "ignore") { echo "selected='selected'"; } ?>>Ignore this condition</option>
                     <option value="include" <?php if ($flash->old('assignment.activity-visits.method') == "include") { echo "selected='selected'"; } ?>>Enabled</option>
                     <?php /* ?><option value="exclude" <?php if ($flash->old('assignment.activity-visits.method') == "exclude") { echo "selected='selected'"; } ?>>Exclude</option> */ ?>
                 </select>                
@@ -28,7 +28,7 @@
                         </select>
                     </div>                        
                     <div class="text-muted ruleset-disabled <?php if (in_array($flash->old('assignment.activity-visits.method'), array( "include", "exclude" ) ) ) { echo "hidden"; } ?>">
-                        This ruleset is ignored.
+                        This condition is ignored.
                     </div>                                  
                 </div>              
                   
