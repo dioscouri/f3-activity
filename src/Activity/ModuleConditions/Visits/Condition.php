@@ -3,19 +3,14 @@ namespace Activity\ModuleConditions\Visits;
 
 class Condition extends \Modules\Abstracts\Condition
 {
-    public function bootstrap()
-    {
-        $this->theme->registerViewPath( __dir__ . '/Views/', 'Activity/ModuleConditions/Visits/Views' );
-    
-        return parent::bootstrap();
-    }
-        
     /**
      * Returns the condition's html
      * for the admin-side module-editing form
      */
     public function html() 
     {
+        $this->theme->registerViewPath( __dir__ . '/Views/', 'Activity/ModuleConditions/Visits/Views' );
+        
         return $this->theme->renderView('Activity/ModuleConditions/Visits/Views::index.php');
     }
     
