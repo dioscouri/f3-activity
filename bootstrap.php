@@ -75,12 +75,13 @@ class ActivityBootstrap extends \Dsc\Bootstrap
             $app = \Base::instance();
             $request_kmi = \Dsc\System::instance()->get('input')->get('kmi', null, 'string');
 
-            $cookie_kmi = $app->get('COOKIE.kmi');
+            $cookie_kmi = \Dsc\Cookie::get('kmi'); // !empty($_COOKIE['kmi']) ? $_COOKIE['kmi'] : null;
             if (!empty($request_kmi))
             {
                 if ($cookie_kmi != $request_kmi)
                 {
-                    $app->set('COOKIE.kmi', $request_kmi);
+                    //$app->set('COOKIE.kmi', $request_kmi);
+                    \Dsc\Cookie::set('kmi', $request_kmi);
                 }
             
                 if (empty($actor->name) || $actor->name == \Dsc\System::instance()->get('input')->get('kmi'))

@@ -162,15 +162,18 @@ class Actors extends \Dsc\Mongo\Collection
         // so that once the user is identified, we can merge the activity
         if (empty($actor->user_id)) 
         {
-            $session_actor_ids = (array) json_decode( $app->get('COOKIE.session_actor_ids') );
+            //$session_actor_ids = (array) json_decode( $app->get('COOKIE.session_actor_ids') );
+            $session_actor_ids = (array) json_decode( \Dsc\Cookie::get('session_actor_ids') );
             $session_actor_ids = array_unique( array_merge( $session_actor_ids, array( (string) $actor->id ) ) );
-            $app->set('COOKIE.session_actor_ids', json_encode($session_actor_ids), $actor->__expire );
+            //$app->set('COOKIE.session_actor_ids', json_encode($session_actor_ids), $actor->__expire );
+            \Dsc\Cookie::set('session_actor_ids', json_encode($session_actor_ids), $actor->__expire/60 );
         }
         
-        elseif (!empty($actor->user_id) && $app->get('COOKIE.session_actor_ids'))
+        //elseif (!empty($actor->user_id) && $app->get('COOKIE.session_actor_ids'))
+        elseif (!empty($actor->user_id) && \Dsc\Cookie::get('session_actor_ids'))
         {
             // update all actions with session_actor_ids to use this $actor->id
-            $session_actor_ids = (array) json_decode( $app->get('COOKIE.session_actor_ids') );
+            $session_actor_ids = (array) json_decode( \Dsc\Cookie::get('session_actor_ids') );
             if (!empty($session_actor_ids)) 
             {
                 $mongo_ids = array();
@@ -193,12 +196,14 @@ class Actors extends \Dsc\Mongo\Collection
                 }
             }
                         
-            $app->set('COOKIE.session_actor_ids', null, $actor->__expire);
+            //$app->set('COOKIE.session_actor_ids', null, $actor->__expire);
+            \Dsc\Cookie::forget('session_actor_ids');
         }
         
         // No matter what, update the cookie with the current actor_id
         // TODO Remove this?  Is this necessary?        
-        $app->set('COOKIE.actor_id', (string) $actor->id, $actor->__expire);        
+        //$app->set('COOKIE.actor_id', (string) $actor->id, $actor->__expire);        
+        \Dsc\Cookie::set('actor_id', (string) $actor->id, $actor->__expire/60 );
         
         return $actor;
     }    
