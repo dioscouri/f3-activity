@@ -285,7 +285,7 @@ class Actors extends \Dsc\Mongo\Collection
         {
             $actor->load(array('user_id' => $user->id));
             $actor->user_id = $user->id;
-            $actor->name = $user->email;
+            $actor->name = $user->email(true);
             
             $session_actor = static::fetchForSession();
     
@@ -312,7 +312,7 @@ class Actors extends \Dsc\Mongo\Collection
             {
                 $actor = $session_actor;
                 $actor->user_id = $user->id;
-                $actor->name = $user->email;
+                $actor->name = $user->email(true);
                 $actor->save();
             }
         }
