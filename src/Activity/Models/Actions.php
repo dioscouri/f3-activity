@@ -202,6 +202,11 @@ class Actions extends \Dsc\Mongo\Collection
             return $value;
         }
         
+        if (is_bool($value)) 
+        {
+            return $value ? 'true' : 'false';
+        }
+        
         $string = '';
         if (is_array($value)) 
         {
