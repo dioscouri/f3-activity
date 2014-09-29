@@ -195,7 +195,7 @@ class Actions extends \Dsc\Mongo\Collection
         return \Activity\Models\Actors::fetch($email);
     }
     
-    public function displayValue($value)
+    public static function displayValue($value, $format='html')
     {
         if (is_string($value)) 
         {
@@ -210,16 +210,36 @@ class Actions extends \Dsc\Mongo\Collection
         $string = '';
         if (is_array($value)) 
         {
-            $string .= '<ul>';
-            foreach ($value as $k=>$v) 
+            switch ($format) 
             {
-                if (is_array($v)) {
-                    $string .= '<li><b>'. $k .':</b> ' . \Joomla\Utilities\ArrayHelper::toString($v) . '</li>';
-                } else {
-                    $string .= '<li><b>'. $k .':</b> ' . $v . '</li>';
-                }                
+                case "raw":
+                    
+                    foreach ($value as $k=>$v)
+                    {
+                        if (is_array($v)) {
+                            $string .= $k .'=' . \Joomla\Utilities\ArrayHelper::toString($v, "=", "|");
+                        } else {
+                            $string .= $k .'=' . $v . "|";
+                        }
+                    }
+                        
+                    break;
+                case "html":
+                default:
+                    
+                    $string .= '<ul>';
+                    foreach ($value as $k=>$v)
+                    {
+                        if (is_array($v)) {
+                            $string .= '<li><b>'. $k .':</b> ' . \Joomla\Utilities\ArrayHelper::toString($v) . '</li>';
+                        } else {
+                            $string .= '<li><b>'. $k .':</b> ' . $v . '</li>';
+                        }
+                    }
+                    $string .= '</ul>';
+                    
+                    break;
             }
-            $string .= '</ul>';
         }
         
         return $string;

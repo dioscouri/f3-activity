@@ -31,7 +31,12 @@ class Listener extends \Dsc\Singleton
                     'title' => 'Actors',
                     'route' => '/admin/activities/actors',
                     'icon' => 'fa fa-users'
-                ),                
+                ),
+                array(
+                    'title' => 'Export',
+                    'route' => './admin/activities/export',
+                    'icon' => 'fa fa-download'
+                ),                                
                 array(
                     'title' => 'Settings',
                     'route' => './admin/activities/settings',

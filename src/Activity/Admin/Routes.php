@@ -19,5 +19,15 @@ class Routes extends \Dsc\Routes\Group
         
         $this->addCrudGroup( 'Actions', 'Action' );
         $this->addCrudGroup( 'Actors', 'Actor' );
+        
+        $this->add( '/export', 'GET', array(
+            'controller' => 'Export',
+            'action' => 'index'
+        ) );
+        
+        $this->add( '/export/@task', 'GET', array(
+            'controller' => 'Export',
+            'action' => '@task'
+        ) );
     }
 }
