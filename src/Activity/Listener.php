@@ -50,12 +50,7 @@ class Listener extends \Dsc\Singleton
         }
     }
     
-    public function afterCreateActivityModelsActions($event) 
-    {
-        // Disabled for now
-    	//$model = $event->getArgument('model');
-    	//$this->pusher->trigger('dashboard','event', array('actor_id' => $model->actor_id, 'action'=> $model->action)); 
-    }
+ 
 
     
 }

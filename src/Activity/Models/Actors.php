@@ -29,7 +29,22 @@ class Actors extends \Dsc\Mongo\Collection
         'default_sort' => array(
             'visited' => -1
         )
-    );    
+    ); 
+
+   public static $__indexes = array(
+    		['visited' => -1]
+    );
+    
+    
+    
+    public function createIndexes() {
+    	 
+    	$collection = $this->collection();
+    	$collection->createIndex(['visited' => -1]);
+    	
+    }
+    
+    
     
     protected function fetchConditions()
     {
