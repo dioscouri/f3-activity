@@ -37,14 +37,7 @@ class Actors extends \Dsc\Mongo\Collection
     
     
     
-    public function createIndexes() {
-    	 
-    	$collection = $this->collection();
-    	$collection->createIndex(['visited' => -1]);
-    	
-    }
-    
-    
+       
     
     protected function fetchConditions()
     {
