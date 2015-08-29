@@ -217,7 +217,7 @@ class Actions extends \Dsc\Mongo\Collection
                     foreach ($value as $k=>$v)
                     {
                         if (is_array($v)) {
-                            $string .= $k .'=' . \Joomla\Utilities\ArrayHelper::toString($v, "=", "|");
+                            $string .= $k .'=' . \DscArrayHelper::toString($v, "=", "|");
                         } else {
                             $string .= $k .'=' . $v . "|";
                         }
@@ -231,7 +231,7 @@ class Actions extends \Dsc\Mongo\Collection
                     foreach ($value as $k=>$v)
                     {
                         if (is_array($v)) {
-                            $string .= '<li><b>'. $k .':</b> ' . \Joomla\Utilities\ArrayHelper::toString($v) . '</li>';
+                            $string .= '<li><b>'. $k .':</b> ' . \DscArrayHelper::toString($v) . '</li>';
                         } else {
                             $string .= '<li><b>'. $k .':</b> ' . $v . '</li>';
                         }
